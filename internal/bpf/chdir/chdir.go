@@ -63,7 +63,6 @@ func (m *EventMonitor) Listen(ctx context.Context, messageChan chan<- bpf.Event)
 					messageChan <- bpf.Event{
 						EventType: bpf.Chdir,
 						Pid:       int(bpfEvent.Pid),
-						UPid:      int(bpfEvent.Upid),
 						Path:      path,
 					}
 				}

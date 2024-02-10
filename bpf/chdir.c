@@ -6,7 +6,6 @@ char __license[] SEC("license") = "Dual MIT/GPL";
 
 struct event {
     __u32 pid;
-    __u32 upid;
     __u8 path[256];
 };
 
@@ -36,20 +35,7 @@ int trace_enter_chdir(struct sys_enter_chdir_args *ctx) {
     if (!event) {
         return 0;
     }
-    event->pid = (u32)bpf_get_current_pid_tgid();
-    struct task_struct *t = (struct task_struct *)bpf_get_current_task();
-    struct nsproxy *nsproxy;
-    bpf_probe_read_kernel(&nsproxy, sizeof(nsproxy), &t->nsproxy);
-    event->upid = 0;
-    if (nsproxy) {
-        struct pid_namespace *pid_ns;
-        bpf_probe_read_kernel(&pid_ns, sizeof(pid_ns), &nsproxy->pid_ns_for_children);
-        if (pid_ns) {
-            unsigned int upid;
-            bpf_probe_read_kernel(&upid, sizeof(upid), &pid_ns->pid_allocated);
-            event->upid = (__u32)upid;
-        }
-    }
+    event->pid = bpf_get_current_pid_tgid()>>32;
     const char *path = (const char *)ctx->filename;
     bpf_probe_read_str(event->path, sizeof(event->path), path);
     bpf_ringbuf_submit(event, 0);

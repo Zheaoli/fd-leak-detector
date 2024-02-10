@@ -14,7 +14,6 @@ import (
 
 type bpfEvent struct {
 	Pid  uint32
-	Upid uint32
 	Path [256]uint8
 }
 

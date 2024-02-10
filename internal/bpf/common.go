@@ -11,7 +11,6 @@ const (
 type Event struct {
 	EventType EventType
 	Pid       int
-	UPid      int
 	Path      string
 }
 
